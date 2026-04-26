@@ -8,7 +8,7 @@ class TestPosts:
     def test_get_posts_status(self):
         """GET /posts повертає 200"""
         r = requests.get(f"{BASE_URL}/posts")
-        assert r.status_code == 990
+        assert r.status_code == 200
 
     def test_get_posts_returns_list(self):
         """Відповідь — список з 100 постів"""
@@ -37,6 +37,29 @@ class TestPosts:
         """Неіснуючий пост повертає 404"""
         r = requests.get(f"{BASE_URL}/posts/99999")
         assert r.status_code == 404
+        
+    def test_post_title_is_string(self):
+        """Title поста — рядок і не порожній"""
+        r = requests.get(f"{BASE_URL}/posts/1")
+        data = r.json()
+        assert isinstance(data["title"], str)
+        assert len(data["title"]) > 0
+
+    def test_get_comments_for_post(self):
+        """GET /posts/1/comments повертає список коментарів"""
+        r = requests.get(f"{BASE_URL}/posts/1/comments")
+        assert r.status_code == 200
+        data = r.json()
+        assert isinstance(data, list)
+        assert len(data) > 0
+        assert "email" in data[0]
+
+    def test_all_posts_have_user_id(self):
+        """Кожен пост має userId"""
+        r = requests.get(f"{BASE_URL}/posts")
+        posts = r.json()
+        for post in posts:
+            assert "userId" in post, f"post {post['id']} не має userId"
 
 
 class TestUsers:
